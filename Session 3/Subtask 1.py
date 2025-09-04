@@ -88,9 +88,13 @@ def guassian_calc(i, j, sigma):
 
 def guassian_kernal(height, width, sigma):
     res = np.zeros((height, width))
+    center_i = height // 2
+    center_j = width // 2
     for i in range(height):
         for j in range(width):
-            res[i][j] = guassian_calc(i, j, sigma)
+            dist_i = i - center_i
+            dist_j = j - center_j
+            res[i][j] = guassian_calc(dist_i, dist_j, sigma)
     return res
 
 # ----------------------------------------------------------------
