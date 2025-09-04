@@ -72,6 +72,10 @@ def convolve(image, kernel):
             else:
                 result[i, j, :] = result_pixel # ne7ot 2l vector values kol wa7ed le its colour
 
+    
+    result = np.clip(result, 0, 255).astype(np.uint8) # due to using plt for printing
+    # I found out the hard way that plt need uint8 and float may cause errors/problems
+
     return result
 
 # ---------------------------------------------------------------
@@ -104,11 +108,13 @@ def median(list, size):
         return (list[size // 2 - 1] + list[size // 2]) // 2
 
 def median_filter(image, kernel_height, kernel_width):
+    # NOTICE: I found that there is a function in numpy that does this
+    # but I have already implemented it and I dont want my work to go into vain :~{
     kernel_n = kernel_height; kernel_m = kernel_width
 
     if not isinstance(image, np.ndarray):
         raise TypeError(f"{image} must be a numpy array")
-    
+
     # if grayscale then add channel dimension
     if len(image.shape) == 2:
         image = image[:, :, np.newaxis]
@@ -149,6 +155,9 @@ def median_filter(image, kernel_height, kernel_width):
                     kernel_list.sort()
                     result[i, j, k] = median(kernel_list, size)
 
+    result = np.clip(result, 0, 255).astype(np.uint8) # due to using plt for printing
+    # I found out the hard way that plt need uint8 and float may cause errors/problems
+    
     return result
 
 # ----------------------------------------------------------------
@@ -192,7 +201,7 @@ grey_image_paths = [
 ]
 bgr_image_paths = [
     'Session 3/shapes.jpg',
-    # 'Session 3/for_median.jpg',
+    'Session 3/for_median.jpg',
 ]
 
 print("it is slow for coloured images idk why; just wait for it")
