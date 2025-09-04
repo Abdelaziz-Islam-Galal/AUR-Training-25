@@ -164,31 +164,31 @@ def median_filter(image, kernel_height, kernel_width):
 # most of the gui was made with the help of chatgpt
 # I wanted to make more than one page and did not know how + had no time to read documentation
 # I am just couple of hours away from the deadline and did not start subtask 2 yet :(
-def create_comparison_page(img, title_suffix="", box=True, horizontal=True, vertical=True, gaussian=True, median=True):
+def create_comparison_page(img, title_suffix="", colour = None, box=True, horizontal=True, vertical=True, gaussian=True, median=True):
     fig, axes = plt.subplots(3, 2, figsize=(8, 8))
     
-    axes[0, 0].imshow(img, cmap='gray')
+    axes[0, 0].imshow(img, cmap=colour)
     axes[0, 0].set_title(f'Original Image {title_suffix}')
     axes[0, 0].axis('off')
 
     if box:
-        axes[0, 1].imshow(convolve(img, np.ones((5, 5)) / 25), cmap='gray')
+        axes[0, 1].imshow(convolve(img, np.ones((5, 5)) / 25), cmap=colour)
         axes[0, 1].set_title('Box Filter')
         axes[0, 1].axis('off')
     if horizontal:
-        axes[1, 0].imshow(convolve(img, np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])), cmap='gray')
+        axes[1, 0].imshow(convolve(img, np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])), cmap=colour)
         axes[1, 0].set_title('Horizontal Filter')
         axes[1, 0].axis('off')
     if vertical:
-        axes[1, 1].imshow(convolve(img, np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])), cmap='gray')
+        axes[1, 1].imshow(convolve(img, np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])), cmap=colour)
         axes[1, 1].set_title('Vertical Filter')
         axes[1, 1].axis('off')
     if gaussian:
-        axes[2, 0].imshow(convolve(img, gaussian_kernal(3, 3, sigma=7)), cmap='gray')
+        axes[2, 0].imshow(convolve(img, gaussian_kernal(3, 3, sigma=7)), cmap=colour)
         axes[2, 0].set_title('Gaussian Filter')
         axes[2, 0].axis('off')
     if median:
-        axes[2, 1].imshow(median_filter(img, 3, 3), cmap='gray')
+        axes[2, 1].imshow(median_filter(img, 7, 7), cmap=colour)
         axes[2, 1].set_title('Median Filter')  # Fixed title
         axes[2, 1].axis('off')
 
@@ -200,14 +200,16 @@ grey_image_paths = [
 ]
 bgr_image_paths = [
     'Session 3/image.jpg',
+    # 'Session 3/for_median.jpg',
 ]
 
 for i, img_path in enumerate(grey_image_paths):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    fig = create_comparison_page(img, title_suffix=f"page {i+1} for grey")
+    fig = create_comparison_page(img, colour = 'grey')
     plt.show() 
 
 for i, img_path in enumerate(bgr_image_paths):
-    img = cv2.imread('your_image.jpg')
-    fig = create_comparison_page(img, title_suffix=f"page {i+1} for bgr")
+    img = cv2.imread(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # type: ignore
+    fig = create_comparison_page(img)
     plt.show()
