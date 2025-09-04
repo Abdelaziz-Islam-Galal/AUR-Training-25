@@ -141,10 +141,12 @@ def median_filter(image, kernel_height, kernel_width):
             image_part = padded_image[i : kernel_n + i, j : kernel_m + j, :]
             if image_channels == 1:
                 kernel_list = [row[0] for part in image_part for row in part]
+                kernel_list.sort()
                 result[i, j] = median(kernel_list, size)
             else:
                 for k in range(image_channels):
                     kernel_list = [row[k] for part in image_part for row in part]
+                    kernel_list.sort()
                     result[i, j, k] = median(kernel_list, size)
 
     if len(image.shape) == 2: #remove extra dimension if it was greyscale
@@ -192,7 +194,7 @@ grey_image_paths = [
     'Session 3/for_sobel.png',
 ]
 bgr_image_paths = [
-    
+    'Session 3/image.jpg',
 ]
 
 for i, img_path in enumerate(grey_image_paths):
