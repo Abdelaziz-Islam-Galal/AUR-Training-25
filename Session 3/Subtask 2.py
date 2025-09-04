@@ -20,6 +20,10 @@ out[BLACK_MASK] = [0, 0, 255]
 # Change all pixels that fit within the red mask to blue
 # Change all pixels that fit within the black mask to red
 
+# BGR to RGB for printing
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+out = cv2.cvtColor(out, cv2.COLOR_BGR2RGB)
+
 fig, axes = plt.subplots(1, 2)
 axes[0].imshow(img)
 axes[0].set_title('Original img')
