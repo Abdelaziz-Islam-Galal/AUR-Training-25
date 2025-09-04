@@ -1,13 +1,32 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+from enum import Enum
 # Take notice that OpenCV handles the image as a numpy array when opening it 
 img = cv2.imread('shapes.jpg')
 out = img.copy()
 
-
-# Make a mask for each color (red, blue, black)
-# Take care that the default colorspace that OpenCV opens an image in is BGR not RGB
+class Red(Enum):
+    BLUE_LOW = 0
+    BLUE_HIGH = 50
+    GREEN_LOW = 0
+    GREEN_HIGH = 50
+    RED_LOW = 150
+    RED_HIGH = 255
+class Blue(Enum):
+    BLUE_LOW = 150
+    BLUE_HIGH = 255
+    GREEN_LOW = 0
+    GREEN_HIGH = 50
+    RED_LOW = 0
+    RED_HIGH = 50
+class Black(Enum):
+    BLUE_LOW = 0
+    BLUE_HIGH = 50
+    GREEN_LOW = 0
+    GREEN_HIGH = 50
+    RED_LOW = 0
+    RED_HIGH = 50
 
 # Change all pixels that fit within the blue mask to black
 # Change all pixels that fit within the red mask to blue
