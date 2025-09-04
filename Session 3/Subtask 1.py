@@ -77,6 +77,8 @@ def convolve(image, kernel):
 
     return result
 
+# ---------------------------------------------------------------
+
 def guassian_calc(i, j, sigma):
     i_squared = i * i
     j_squared = j * j
@@ -90,6 +92,67 @@ def guassian_kernal(height, width, sigma):
         for j in range(width):
             res[i][j] = guassian_calc(i, j, sigma)
     return res
+
+# ----------------------------------------------------------------
+
+def median(list, size):
+    if size%2 == 1:
+        return list[size // 2 + 1]
+    else:
+        return (list[size // 2] + list[size // 2 + 1]) // 2
+
+def median_filter(image, kernel_height, kernel_width):
+    kernel_n = kernel_height; kernel_m = kernel_width
+
+    if not isinstance(image, np.ndarray):
+        raise TypeError(f"{image} must be a numpy array")
+    
+    # if grayscale then add channel dimension
+    if len(image.shape) == 2:
+        image = image[:, :, np.newaxis]
+
+    image_n, image_m, image_channels = image.shape
+    
+    if kernel_n%2 != 1 or kernel_m%2 != 1:
+        print(f"kernel rows = {kernel_n}"); print(f"kernel cols = {kernel_m}")
+        raise TypeError("Kernel must have odd rows and columns")
+
+    kernel = np.zeros((kernel_n, kernel_m, 1)) # extra dimenstion incase image have more than one colour
+
+    # padding:
+    pad_n = kernel_n // 2; pad_m = kernel_m // 2
+    padded_image = np.pad(image, ((pad_n, pad_n), (pad_m, pad_m), (0, 0)), mode='edge')
+    # padding with zeros will cause problems whith median calculation
+    # I dont know what to do but i do not want a smaller output
+    # so i will replicate the borders, wa 2ma we 7azy b2a
+
+
+    result_n = image_n
+    result_m = image_m
+
+    if image_channels == 1:
+        result = np.zeros((result_n, result_m))
+    else:
+        result = np.zeros((result_n, result_m, image_channels))
+
+    size = kernel_m * kernel_n
+    for i in range(result_n):
+        for j in range(result_m):
+            image_part = padded_image[i : kernel_n + i, j : kernel_m + j, :]
+            if image_channels == 1:
+                kernel_list = [row[0] for part in image_part for row in part]
+                result[i, j] = median(kernel_list, size)
+            else:
+                for k in range(image_channels):
+                    kernel_list = [row[k] for part in image_part for row in part]
+                    result[i, j, k] = median(kernel_list, size)
+
+    if len(image.shape) == 2: #remove extra dimension if it was greyscale
+        result = result[:, :, 0]
+
+    return result
+
+# ----------------------------------------------------------------
 
 # Take notice that OpenCV handles the image as a numpy array when opening it
 img1 = cv2.imread('Session 3/for_sobel.png', cv2.IMREAD_GRAYSCALE)
@@ -115,5 +178,9 @@ axes[1, 1].axis('off')
 axes[2, 0].imshow(convolve(img1, guassian_kernal(3, 3, sigma = 7)), cmap='gray')
 axes[2, 0].set_title('Gaussian filter')
 axes[2, 0].axis('off')
+
+axes[2, 1].imshow(median_filter(img1, 3, 3), cmap='gray')
+axes[2, 1].set_title('Gaussian filter')
+axes[2, 1].axis('off')
 
 plt.show()
