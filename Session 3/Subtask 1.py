@@ -72,9 +72,6 @@ def convolve(image, kernel):
             else:
                 result[i, j, :] = result_pixel # ne7ot 2l vector values kol wa7ed le its colour
 
-    if len(image.shape) == 2: #remove extra dimension if it was greyscale
-        result = result[:, :, 0]
-
     return result
 
 # ---------------------------------------------------------------
@@ -102,9 +99,9 @@ def gaussian_kernal(height, width, sigma):
 
 def median(list, size):
     if size%2 == 1:
-        return list[size // 2 + 1]
+        return list[size // 2]
     else:
-        return (list[size // 2] + list[size // 2 + 1]) // 2
+        return (list[size // 2 - 1] + list[size // 2]) // 2
 
 def median_filter(image, kernel_height, kernel_width):
     kernel_n = kernel_height; kernel_m = kernel_width
@@ -121,8 +118,6 @@ def median_filter(image, kernel_height, kernel_width):
     if kernel_n%2 != 1 or kernel_m%2 != 1:
         print(f"kernel rows = {kernel_n}"); print(f"kernel cols = {kernel_m}")
         raise TypeError("Kernel must have odd rows and columns")
-
-    kernel = np.zeros((kernel_n, kernel_m, 1)) # extra dimenstion incase image have more than one colour
 
     # padding:
     pad_n = kernel_n // 2; pad_m = kernel_m // 2
@@ -145,17 +140,14 @@ def median_filter(image, kernel_height, kernel_width):
         for j in range(result_m):
             image_part = padded_image[i : kernel_n + i, j : kernel_m + j, :]
             if image_channels == 1:
-                kernel_list = [row[0] for part in image_part for row in part]
+                kernel_list = image_part[:, :, 0].flatten().tolist()
                 kernel_list.sort()
                 result[i, j] = median(kernel_list, size)
             else:
                 for k in range(image_channels):
-                    kernel_list = [row[k] for part in image_part for row in part]
+                    kernel_list = image_part[:, :, k].flatten().tolist()
                     kernel_list.sort()
                     result[i, j, k] = median(kernel_list, size)
-
-    if len(image.shape) == 2: #remove extra dimension if it was greyscale
-        result = result[:, :, 0]
 
     return result
 
@@ -184,7 +176,7 @@ def create_comparison_page(img, title_suffix="", colour = None, box=True, horizo
         axes[1, 1].set_title('Vertical Filter')
         axes[1, 1].axis('off')
     if gaussian:
-        axes[2, 0].imshow(convolve(img, gaussian_kernal(3, 3, sigma=7)), cmap=colour)
+        axes[2, 0].imshow(convolve(img, gaussian_kernal(7, 7, sigma=1.5)), cmap=colour)
         axes[2, 0].set_title('Gaussian Filter')
         axes[2, 0].axis('off')
     if median:
@@ -199,13 +191,15 @@ grey_image_paths = [
     'Session 3/for_sobel.png',
 ]
 bgr_image_paths = [
-    'Session 3/image.jpg',
+    'Session 3/shapes.jpg',
     # 'Session 3/for_median.jpg',
 ]
 
+print("it is slow for coloured images idk why; just wait for it")
+
 for i, img_path in enumerate(grey_image_paths):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    fig = create_comparison_page(img, colour = 'grey')
+    fig = create_comparison_page(img, colour = 'gray')
     plt.show() 
 
 for i, img_path in enumerate(bgr_image_paths):
