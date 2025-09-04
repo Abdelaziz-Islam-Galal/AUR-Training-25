@@ -1,32 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-from enum import Enum
-# Take notice that OpenCV handles the image as a numpy array when opening it 
-img = cv2.imread('shapes.jpg')
-out = img.copy()
+# from enum import Enum -> tried but failed and changed strategy
 
-class Red(Enum):
-    BLUE_LOW = 0
-    BLUE_HIGH = 50
-    GREEN_LOW = 0
-    GREEN_HIGH = 50
-    RED_LOW = 150
-    RED_HIGH = 255
-class Blue(Enum):
-    BLUE_LOW = 150
-    BLUE_HIGH = 255
-    GREEN_LOW = 0
-    GREEN_HIGH = 50
-    RED_LOW = 0
-    RED_HIGH = 50
-class Black(Enum):
-    BLUE_LOW = 0
-    BLUE_HIGH = 50
-    GREEN_LOW = 0
-    GREEN_HIGH = 50
-    RED_LOW = 0
-    RED_HIGH = 50
+# Take notice that OpenCV handles the img as a numpy array when opening it 
+img = cv2.imread('Session 3/shapes.jpg')
+out = img.copy()  # type: ignore
+
+BLUE_MASK = (img[:, :, 0] >= 150) & (img[:, :, 1] <= 50) & (img[:, :, 2] <= 50) # type: ignore
+RED_MASK = (img[:, :, 0] <= 50) & (img[:, :, 1] <= 50) & (img[:, :, 2] >= 150) # type: ignore
+BLACK_MASK = (img[:, :, 0] <= 50) & (img[:, :, 1] <= 50) & (img[:, :, 2] <= 50) # type: ignore
+
+
+out[BLUE_MASK] = [0, 0, 0]
+out[RED_MASK] = [255, 0, 0]
+out[BLACK_MASK] = [0, 0, 255]
 
 # Change all pixels that fit within the blue mask to black
 # Change all pixels that fit within the red mask to blue
@@ -34,11 +22,11 @@ class Black(Enum):
 
 fig, axes = plt.subplots(1, 2)
 axes[0].imshow(img)
-axes[0].set_title('Original Image')
+axes[0].set_title('Original img')
 axes[0].axis('off')
 
 axes[1].imshow(out)
-axes[1].set_title('Processed Image')
+axes[1].set_title('Processed img')
 axes[1].axis('off')
 
 plt.show()
