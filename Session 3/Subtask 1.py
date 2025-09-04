@@ -154,33 +154,53 @@ def median_filter(image, kernel_height, kernel_width):
 
 # ----------------------------------------------------------------
 
-# Take notice that OpenCV handles the image as a numpy array when opening it
-img1 = cv2.imread('Session 3/for_sobel.png', cv2.IMREAD_GRAYSCALE)
+# most of the gui was made with the help of chatgpt
+# I wanted to make more than one page and did not know how + had no time to read documentation
+# I am just couple of hours away from the deadline and did not start subtask 2 yet :(
+def create_comparison_page(img, title_suffix="", box=True, horizontal=True, vertical=True, guassian=True, median=True):
+    fig, axes = plt.subplots(3, 2, figsize=(8, 8))
+    
+    axes[0, 0].imshow(img, cmap='gray')
+    axes[0, 0].set_title(f'Original Image {title_suffix}')
+    axes[0, 0].axis('off')
 
-fig, axes = plt.subplots(3, 2, figsize=(8, 8))
+    if box:
+        axes[0, 1].imshow(convolve(img, np.ones((5, 5)) / 25), cmap='gray')
+        axes[0, 1].set_title('Box Filter')
+        axes[0, 1].axis('off')
+    if horizontal:
+        axes[1, 0].imshow(convolve(img, np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])), cmap='gray')
+        axes[1, 0].set_title('Horizontal Filter')
+        axes[1, 0].axis('off')
+    if vertical:
+        axes[1, 1].imshow(convolve(img, np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])), cmap='gray')
+        axes[1, 1].set_title('Vertical Filter')
+        axes[1, 1].axis('off')
+    if guassian:
+        axes[2, 0].imshow(convolve(img, guassian_kernal(3, 3, sigma=7)), cmap='gray')
+        axes[2, 0].set_title('Gaussian Filter')
+        axes[2, 0].axis('off')
+    if median:
+        axes[2, 1].imshow(median_filter(img, 3, 3), cmap='gray')
+        axes[2, 1].set_title('Median Filter')  # Fixed title
+        axes[2, 1].axis('off')
 
-axes[0, 0].imshow(img1, cmap='gray')
-axes[0, 0].set_title('Original Image 1')
-axes[0, 0].axis('off')
+    plt.tight_layout()
+    return fig
 
-axes[0, 1].imshow(convolve(img1, np.ones((5, 5)) / 25), cmap='gray')
-axes[0, 1].set_title('Box Filter')
-axes[0, 1].axis('off')
+grey_image_paths = [
+    'Session 3/for_sobel.png',
+]
+bgr_image_paths = [
+    
+]
 
-axes[1, 0].imshow(convolve(img1, np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])), cmap='gray')
-axes[1, 0].set_title('Horizontal img1 Filter')
-axes[1, 0].axis('off')
+for i, img_path in enumerate(grey_image_paths):
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    fig = create_comparison_page(img, title_suffix=f"page {i+1} for grey")
+    plt.show() 
 
-axes[1, 1].imshow(convolve(img1, np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])), cmap='gray')
-axes[1, 1].set_title('Vertical img1 Filter')
-axes[1, 1].axis('off')
-
-axes[2, 0].imshow(convolve(img1, guassian_kernal(3, 3, sigma = 7)), cmap='gray')
-axes[2, 0].set_title('Gaussian filter')
-axes[2, 0].axis('off')
-
-axes[2, 1].imshow(median_filter(img1, 3, 3), cmap='gray')
-axes[2, 1].set_title('Gaussian filter')
-axes[2, 1].axis('off')
-
-plt.show()
+for i, img_path in enumerate(bgr_image_paths):
+    img = cv2.imread('your_image.jpg')
+    fig = create_comparison_page(img, title_suffix=f"page {i+1} for bgr")
+    plt.show()
