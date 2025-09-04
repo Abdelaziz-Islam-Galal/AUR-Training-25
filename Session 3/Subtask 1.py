@@ -79,14 +79,14 @@ def convolve(image, kernel):
 
 # ---------------------------------------------------------------
 
-def guassian_calc(i, j, sigma):
+def gaussian_calc(i, j, sigma):
     i_squared = i * i
     j_squared = j * j
     sigma_squared = sigma * sigma
     res = (1 / (2 * pi * sigma_squared)) * (e ** -((i_squared + j_squared) / (2 * sigma_squared)))
     return res
 
-def guassian_kernal(height, width, sigma):
+def gaussian_kernal(height, width, sigma):
     res = np.zeros((height, width))
     center_i = height // 2
     center_j = width // 2
@@ -94,7 +94,8 @@ def guassian_kernal(height, width, sigma):
         for j in range(width):
             dist_i = i - center_i
             dist_j = j - center_j
-            res[i][j] = guassian_calc(dist_i, dist_j, sigma)
+            res[i][j] = gaussian_calc(dist_i, dist_j, sigma)
+    res = res / np.sum(res)
     return res
 
 # ----------------------------------------------------------------
@@ -163,7 +164,7 @@ def median_filter(image, kernel_height, kernel_width):
 # most of the gui was made with the help of chatgpt
 # I wanted to make more than one page and did not know how + had no time to read documentation
 # I am just couple of hours away from the deadline and did not start subtask 2 yet :(
-def create_comparison_page(img, title_suffix="", box=True, horizontal=True, vertical=True, guassian=True, median=True):
+def create_comparison_page(img, title_suffix="", box=True, horizontal=True, vertical=True, gaussian=True, median=True):
     fig, axes = plt.subplots(3, 2, figsize=(8, 8))
     
     axes[0, 0].imshow(img, cmap='gray')
@@ -182,8 +183,8 @@ def create_comparison_page(img, title_suffix="", box=True, horizontal=True, vert
         axes[1, 1].imshow(convolve(img, np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])), cmap='gray')
         axes[1, 1].set_title('Vertical Filter')
         axes[1, 1].axis('off')
-    if guassian:
-        axes[2, 0].imshow(convolve(img, guassian_kernal(3, 3, sigma=7)), cmap='gray')
+    if gaussian:
+        axes[2, 0].imshow(convolve(img, gaussian_kernal(3, 3, sigma=7)), cmap='gray')
         axes[2, 0].set_title('Gaussian Filter')
         axes[2, 0].axis('off')
     if median:
