@@ -20,10 +20,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "temp = weather_pkg.temperature node:main",
-            "humid = weather_pkg.humidity node:main",
-            "pressure = weather_pkg.pressure node:main",
-            "monitor = weather_pkg.monitor node:main"
+            "temp = weather_pkg.temperature_node:main",
+            "humid = weather_pkg.humidity_node:main",
+            "pressure = weather_pkg.pressure_node:main",
+            "monitor = weather_pkg.monitor_node:main"
         ],
     },
 )
