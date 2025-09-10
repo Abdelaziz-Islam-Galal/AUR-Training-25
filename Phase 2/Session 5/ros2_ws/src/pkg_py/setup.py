@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "timer = pkg_py.timer node : main"
+            "timer = pkg_py.timer node:main"
         ],
     },
 )
