@@ -8,7 +8,8 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-  <depend>my_pkg</depend>
+  <depend>sensor_msgs.msg</depend>
+  <depend>pathlib</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

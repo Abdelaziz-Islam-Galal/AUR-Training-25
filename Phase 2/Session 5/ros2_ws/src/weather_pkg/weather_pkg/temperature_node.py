@@ -16,7 +16,7 @@ class temp_sensor(Node):
     def rand_temp_callback(self):
         msg = Temperature()
         msg.temperature = random.random() * 45 # ranges from 0 to 45 Degrees Celcius
-        msg.variance = 0 # variance is unknown
+        msg.variance = 0.0 # variance is unknown
         self.publisher_node.publish(msg)
 
 

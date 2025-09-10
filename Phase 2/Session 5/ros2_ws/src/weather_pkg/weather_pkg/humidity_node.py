@@ -16,7 +16,7 @@ class humid_sensor(Node):
     def rand_humid_callback(self):
         msg = RelativeHumidity()
         msg.relative_humidity = random.random() # ranges from 0 to 1 (percentage)
-        msg.variance = 0 # variance is unknown
+        msg.variance = 0.0 # variance is unknown
         self.publisher_node.publish(msg)
 
 

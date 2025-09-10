@@ -16,7 +16,7 @@ class pressure_sensor(Node):
     def rand_pressure_callback(self):
         msg = FluidPressure()
         msg.fluid_pressure = random.randint(900, 1100) + random.random() # ranges from 900 to 1101
-        msg.variance = 0 # variance is unknown
+        msg.variance = 0.0 # variance is unknown
         self.publisher_node.publish(msg)
 
 
