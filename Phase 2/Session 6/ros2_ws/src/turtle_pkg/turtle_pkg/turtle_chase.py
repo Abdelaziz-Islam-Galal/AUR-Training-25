@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from turtlesim_msgs.srv import Spawn
+from turtlesim_msgs.srv import Spawn, Kill
 from functools import partial
 import random
 import math
@@ -29,7 +29,8 @@ import math
 #     find_distance(pose1: Pose,pose2: Pose)
 #     spawn_enemy(name): calls /spawn to create a turtle. -> client
 #     kill_enemy(name): calls /kill to remove a turtle. -> client
-#     response_checker_callback: to make sure spawn and kill occures with no error
+#     spawn_callback: to make sure spawn occures with no error
+#     kill_callback: to make sure spawn occures with no error
 
 
 
@@ -53,15 +54,34 @@ class turtle_chase(Node):
         request.name = name
 
         future=client.call_async(request)
-        future.add_done_callback(partial(self.response_checker_callback, name)) # this will call self.callback when service has replied
+        future.add_done_callback(partial(self.spawn_callback, name)) # this will call self.callback when service has replied
 
-    def response_checker_callback(self,future, name):
+    def kill_enemy(self, name):
+        client = self.create_client(Kill,"/kill")
+
+        while not client.wait_for_service(1):
+            self.get_logger().warn("Waiting...")
+
+        request = Kill.Request()
+        request.name = name
+
+        future=client.call_async(request)
+        future.add_done_callback(partial(self.kill_callback, name)) # this will call self.callback when service has replied
+
+    def spawn_callback(self,future, name):
         try:
             response = future.result()
             if response.name == name:
                 self.get_logger().info(f"spawned {name}")
             else:
                 self.get_logger().error(f"error in spawning {name}")
+        except Exception as e:
+            self.get_logger().error("Service call failed: %r" %(e,))
+    
+    def kill_callback(self,future, name):
+        try:
+            response = future.result()
+            self.get_logger().info(f'Successfully killed {name}')
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
 
