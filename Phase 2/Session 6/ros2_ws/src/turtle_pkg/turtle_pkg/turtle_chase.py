@@ -38,22 +38,28 @@ class turtle_chase(Node):
     def __init__(self):
         super().__init__("turtle_chase")
 
+        # subscription on players position
         self.user_pos = None
         self.user_pos_sub = self.create_subscription(Pose, '/turtle1/pose', self.player_callback, 10)
 
+        # intialising score and topic that it will be published on
         self.score = Int32()
         self.score.data = 0
         self.score_pub = self.create_publisher(Int32, '/score', 10)
         
+        # spawning enemies
         self.spawn_enemy("enemy1")
         self.spawn_enemy("enemy2")
         self.spawn_enemy("enemy3")
 
+        # subscription on the enemies position
+        # using partial() allows me to add an argument with the enemy's name
         self.enemy_positions = {}
         self.enemy1_pos_sub = self.create_subscription(Pose, '/enemy1/pose', partial(self.enemy_callback, 'enemy1'), 10)
         self.enemy2_pos_sub = self.create_subscription(Pose, '/enemy2/pose', partial(self.enemy_callback, 'enemy2'), 10)
         self.enemy3_pos_sub = self.create_subscription(Pose, '/enemy3/pose', partial(self.enemy_callback, 'enemy3'), 10)
 
+        # every 0.1 seconds a function will check if collision occurs
         self.create_timer(0.1,self.check_collisions)
 
 
@@ -82,7 +88,7 @@ class turtle_chase(Node):
         request = Kill.Request()
         request.name = name
 
-        future=client.call_async(request)
+        future = client.call_async(request)
         future.add_done_callback(partial(self.kill_callback, name)) # this will call self.callback when service has replied
 
     def spawn_callback(self, future, name):
@@ -97,7 +103,7 @@ class turtle_chase(Node):
     
     def kill_callback(self, future, name):
         try:
-            response = future.result()
+            response = future.result() # if no error then call_back was successful
             self.get_logger().info(f'Successfully killed {name}')
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
