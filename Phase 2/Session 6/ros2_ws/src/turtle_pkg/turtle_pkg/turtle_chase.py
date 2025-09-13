@@ -3,6 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from turtlesim_msgs.srv import Spawn, Kill
+from turtlesim_msgs.msg import Pose
 from functools import partial
 import random
 import math
@@ -32,14 +33,22 @@ import math
 #     spawn_callback: to make sure spawn occures with no error
 #     kill_callback: to make sure spawn occures with no error
 
-
-
 class turtle_chase(Node):
     def __init__(self):
         super().__init__("turtle_chase")
+        self.user_pos_sub = self.create_subscription(Pose, '/turtle1/pose', self.player_callback, 10)
+        
         self.spawn_enemy("enemy1")
         self.spawn_enemy("enemy2")
         self.spawn_enemy("enemy3")
+
+        self.enemy_positions = {}
+        self.enemy1_pos_sub = self.create_subscription(Pose, '/enemy1/pose', partial(self.enemy_callback, 'enemy1'), 10)
+        self.enemy2_pos_sub = self.create_subscription(Pose, '/enemy2/pose', partial(self.enemy_callback, 'enemy2'), 10)
+        self.enemy3_pos_sub = self.create_subscription(Pose, '/enemy3/pose', partial(self.enemy_callback, 'enemy3'), 10)
+
+
+
 
     def spawn_enemy(self, name):
         client = self.create_client(Spawn,"/spawn")
@@ -84,6 +93,12 @@ class turtle_chase(Node):
             self.get_logger().info(f'Successfully killed {name}')
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
+    
+    def player_callback(self, msg:Pose):
+        self.user_pos = msg
+
+    def enemy_callback(self, name, msg:Pose):
+        self.enemy_positions[name] = msg
 
 
 def main():
