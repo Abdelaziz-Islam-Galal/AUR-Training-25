@@ -101,7 +101,7 @@ class turtle_chase(Node):
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
     
-    def kill_callback(self, future, name):
+    def kill_callback(self, name, future):
         try:
             response = future.result() # if no error then call_back was successful
             self.get_logger().info(f'Successfully killed {name}')
