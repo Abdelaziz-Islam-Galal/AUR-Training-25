@@ -41,7 +41,9 @@ class turtle_chase(Node):
         self.user_pos = None
         self.user_pos_sub = self.create_subscription(Pose, '/turtle1/pose', self.player_callback, 10)
 
-        #self.score_pub = self.create_publisher(Int32, '/score', 10)
+        self.score = Int32()
+        self.score.data = 0
+        self.score_pub = self.create_publisher(Int32, '/score', 10)
         
         self.spawn_enemy("enemy1")
         self.spawn_enemy("enemy2")
@@ -68,7 +70,7 @@ class turtle_chase(Node):
         request.theta = random.random() * (2*math.pi) # ranges from 0 to 2*pi
         request.name = name
 
-        future=client.call_async(request)
+        future = client.call_async(request)
         future.add_done_callback(partial(self.spawn_callback, name)) # this will call self.callback when service has replied
 
     def kill_enemy(self, name):
@@ -116,10 +118,10 @@ class turtle_chase(Node):
             dist = self.find_distance(pose, self.user_pos)
             if dist < 0.05:
                 self.get_logger().info(f"{name} was hit!")
-
-                # Update the score and publish it
-                # kill_enemy('enemeyX')
-                # spawn_enemy('enemeyX') -> the new spawned turtle enemy would have the same number as the one you just killed
+                self.score.data += 1
+                self.score_pub.publish(self.score)
+                self.kill_enemy(name)
+                self.spawn_enemy(name)
 
 def main():
     rclpy.init()
