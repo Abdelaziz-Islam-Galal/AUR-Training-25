@@ -55,6 +55,8 @@ class turtle_chase(Node):
         # subscription on the enemies position
         # using partial() allows me to add an argument with the enemy's name
         self.enemy_positions = {}
+        self.enemies_tracker = { 'enemy1' : False, 'enemy2' : False, 'enemy3' : False }
+        self.unkilled_enemies = set() # the only solution to succeed in preventing multiple scores for one kill
         self.enemy1_pos_sub = self.create_subscription(Pose, '/enemy1/pose', partial(self.enemy_callback, 'enemy1'), 10)
         self.enemy2_pos_sub = self.create_subscription(Pose, '/enemy2/pose', partial(self.enemy_callback, 'enemy2'), 10)
         self.enemy3_pos_sub = self.create_subscription(Pose, '/enemy3/pose', partial(self.enemy_callback, 'enemy3'), 10)
@@ -95,15 +97,18 @@ class turtle_chase(Node):
         try:
             response = future.result()
             if response.name == name:
+                self.enemies_tracker[name] = True
+                self.unkilled_enemies.add(name) 
                 self.get_logger().info(f"spawned {name}")
             else:
-                self.get_logger().error(f"error in spawning {name}")
+                self.get_logger().error(f"error: expected to spawn {name}, but got {response.name}")
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
     
     def kill_callback(self, name, future):
         try:
             response = future.result() # if no error then call_back was successful
+            self.enemies_tracker[name] = False
             self.get_logger().info(f'Successfully killed {name}')
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
@@ -124,14 +129,30 @@ class turtle_chase(Node):
     def check_collisions(self):
         if not self.user_pos:
             return
-        for name, pose in list(self.enemy_positions.items()):
+        for name, pose in self.enemy_positions.items():
+            if pose is None or name not in self.unkilled_enemies:
+                continue
             dist = self.find_distance(pose, self.user_pos)
-            if dist < 0.05:
+            if dist < 0.5:
                 self.get_logger().info(f"{name} was hit!")
                 self.score.data += 1
                 self.score_pub.publish(self.score)
+
                 self.kill_enemy(name)
+                self.unkilled_enemies.discard(name)
+                
+
+                self.create_timer(1, partial(self.respawn, name)) 
+                # trying this becaues error occurs that enemy cant't respawn because it is already alive
+                # delaying have succeeded in solving error
+
+    def respawn(self, name):  
+        # another error showed that if the same enemy killed twice quickly it won't respawn
+        #solved that error by spawing any enemy not spawned using the tracker
+        for name, state in self.enemies_tracker.items():
+            if state == False:
                 self.spawn_enemy(name)
+                self.enemies_tracker[name] = True
 
 def main():
     rclpy.init()
