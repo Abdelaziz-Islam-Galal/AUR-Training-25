@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 from turtlesim_msgs.srv import Spawn, Kill
 from turtlesim_msgs.msg import Pose
+from std_msgs.msg import Int32
 from functools import partial
 import random
 import math
@@ -13,7 +14,7 @@ import math
 #     Detecting collisions
 #     kill enemies after collision with user
 #     Respawning enemies
-#     Publishing the score (enemy death causes score to increment)
+#     Publishing the score (enemy death causes score to increment) -> using "ros2 topic echo /score"
 
 # Topics:
 #     /spawn (service)
@@ -26,7 +27,7 @@ import math
 #     player_callback(msg:Pose): receives /turtle1/pose
 #     enemy_callback(msg:Pose): receives enemy poses and appends it to a dictionary called enemy_positions:
 #         used as -> enemy_positions[name]=msg
-#     check collisions(): timer callback to check for collisions
+#     check_collisions(): timer callback to check for collisions
 #     find_distance(pose1: Pose,pose2: Pose)
 #     spawn_enemy(name): calls /spawn to create a turtle. -> client
 #     kill_enemy(name): calls /kill to remove a turtle. -> client
@@ -36,7 +37,11 @@ import math
 class turtle_chase(Node):
     def __init__(self):
         super().__init__("turtle_chase")
+
+        self.user_pos = None
         self.user_pos_sub = self.create_subscription(Pose, '/turtle1/pose', self.player_callback, 10)
+
+        #self.score_pub = self.create_publisher(Int32, '/score', 10)
         
         self.spawn_enemy("enemy1")
         self.spawn_enemy("enemy2")
@@ -47,6 +52,7 @@ class turtle_chase(Node):
         self.enemy2_pos_sub = self.create_subscription(Pose, '/enemy2/pose', partial(self.enemy_callback, 'enemy2'), 10)
         self.enemy3_pos_sub = self.create_subscription(Pose, '/enemy3/pose', partial(self.enemy_callback, 'enemy3'), 10)
 
+        self.create_timer(0.1,self.check_collisions)
 
 
 
@@ -77,7 +83,7 @@ class turtle_chase(Node):
         future=client.call_async(request)
         future.add_done_callback(partial(self.kill_callback, name)) # this will call self.callback when service has replied
 
-    def spawn_callback(self,future, name):
+    def spawn_callback(self, future, name):
         try:
             response = future.result()
             if response.name == name:
@@ -87,7 +93,7 @@ class turtle_chase(Node):
         except Exception as e:
             self.get_logger().error("Service call failed: %r" %(e,))
     
-    def kill_callback(self,future, name):
+    def kill_callback(self, future, name):
         try:
             response = future.result()
             self.get_logger().info(f'Successfully killed {name}')
@@ -100,6 +106,20 @@ class turtle_chase(Node):
     def enemy_callback(self, name, msg:Pose):
         self.enemy_positions[name] = msg
 
+    def find_distance(self, pose1: Pose, pose2: Pose):
+        return math.sqrt((pose2.x - pose1.x)**2 + (pose2.y - pose1.y)**2)
+
+    def check_collisions(self):
+        if not self.user_pos:
+            return
+        for name, pose in list(self.enemy_positions.items()):
+            dist = self.find_distance(pose, self.user_pos)
+            if dist < 0.05:
+                self.get_logger().info(f"{name} was hit!")
+
+                # Update the score and publish it
+                # kill_enemy('enemeyX')
+                # spawn_enemy('enemeyX') -> the new spawned turtle enemy would have the same number as the one you just killed
 
 def main():
     rclpy.init()
