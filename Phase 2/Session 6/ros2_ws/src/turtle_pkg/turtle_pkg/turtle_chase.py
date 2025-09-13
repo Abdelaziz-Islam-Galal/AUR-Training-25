@@ -80,7 +80,7 @@ class turtle_chase(Node):
         future.add_done_callback(partial(self.spawn_callback, name)) # this will call self.callback when service has replied
 
     def kill_enemy(self, name):
-        client = self.create_client(Kill,"/kill")
+        client = self.create_client(Kill, "/kill")
 
         while not client.wait_for_service(1):
             self.get_logger().warn("Waiting...")
@@ -110,15 +110,15 @@ class turtle_chase(Node):
     
     def player_callback(self, msg:Pose):
         self.user_pos = msg
-        self.get_logger().debug(f"user pose is ({msg.x},{msg.y})")
+        #self.get_logger().info(f"user pose is ({msg.x},{msg.y})")
 
     def enemy_callback(self, name, msg:Pose):
         self.enemy_positions[name] = msg
-        self.get_logger().debug(f"{name} pose is ({msg.x},{msg.y})")
+        #self.get_logger().info(f"{name} pose is ({msg.x},{msg.y})")
 
     def find_distance(self, pose1: Pose, pose2: Pose):
         res = math.sqrt((pose2.x - pose1.x)**2 + (pose2.y - pose1.y)**2)
-        self.get_logger().debug(f"find_distance used &  {res}")
+        #self.get_logger().info(f"find_distance = {res}")
         return res
 
     def check_collisions(self):
