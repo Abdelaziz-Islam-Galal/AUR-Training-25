@@ -10,8 +10,7 @@ class temp_sensor(Node):
         super().__init__("temp")
         self.get_logger().info("Started measuring temprature")
         self.publisher_node = self.create_publisher(Temperature, '/temperature', 10)
-        self.counter = 0
-        self.create_timer(1,  self.rand_temp_callback)
+        self.create_timer(3,  self.rand_temp_callback)
 
     def rand_temp_callback(self):
         msg = Temperature()

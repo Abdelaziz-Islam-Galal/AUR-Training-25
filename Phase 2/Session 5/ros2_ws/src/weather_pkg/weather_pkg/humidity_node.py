@@ -11,7 +11,7 @@ class humid_sensor(Node):
         self.get_logger().info("Started measuring Humidity")
         self.publisher_node = self.create_publisher(RelativeHumidity, '/humidity', 10)
         self.counter = 0
-        self.create_timer(1,  self.rand_humid_callback)
+        self.create_timer(2,  self.rand_humid_callback)
 
     def rand_humid_callback(self):
         msg = RelativeHumidity()
