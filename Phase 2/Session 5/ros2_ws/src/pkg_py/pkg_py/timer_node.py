@@ -16,6 +16,8 @@ class timer(Node):
         self.counter -= 1
         if self.counter == 0:
             self.get_logger().info("Time is up!")
+            self.destroy_node()
+            rclpy.shutdown()
 
 def main():
     rclpy.init()
