@@ -1,5 +1,7 @@
+# The next 5 lines are written (once) so when making the project into an executable file, the absolute imports work
+# absolute imports is when somone imports his own code into ather part of the same code
+# like whaat we did in the line: "from RobotGui.gui.window import Window"
 import sys
-
 if __package__ is None and not getattr(sys, 'frozen', False):
     import os.path
     path = os.path.realpath(os.path.abspath(__file__))
@@ -8,8 +10,8 @@ if __package__ is None and not getattr(sys, 'frozen', False):
 from PySide6.QtWidgets import QApplication
 from RobotGui.gui.window import Window
 
-app = QApplication()
+app = QApplication() # creating application
 
-window = Window()
+window = Window() # the window that will appear in the application
 
-app.exec()
+app.exec() # executing the applocation

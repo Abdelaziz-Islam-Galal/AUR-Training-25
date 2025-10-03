@@ -15,5 +15,5 @@ class CameraDisplay(QWidget):
 
     def update_view(self):
         frame = self._camera_device.frame
-        image = QImage(frame.data, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format.Format_BGR888)
+        image = QImage(frame.data, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format.Format_BGR888) # type: ignore
         self._frame_view.setPixmap(QPixmap.fromImage(image))
