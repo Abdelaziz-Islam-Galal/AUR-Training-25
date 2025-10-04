@@ -1,5 +1,5 @@
 import cv2
-from threading import 
+from threading import Thread
 from time import sleep
 # from pathlib import Path
 # import numpy as np
