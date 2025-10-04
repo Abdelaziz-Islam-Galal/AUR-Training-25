@@ -16,7 +16,7 @@ class CameraDisplay(QWidget):
 
         # Timer to update frames (makes it like a video)
         self._camera_timer = QTimer()
-        self._camera_timer.timeout.connect(self.update_view())
+        self._camera_timer.timeout.connect(self.update_view)
         self._camera_timer.setInterval(50)
         self._camera_timer.start()
 
