@@ -4,7 +4,7 @@ from PySide6.QtCore import QTimer
 from RobotGui.core.cv import Camera
 
 class CameraDisplay(QWidget):
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         
         self._camera_device = Camera()
