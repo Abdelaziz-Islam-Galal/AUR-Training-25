@@ -1,9 +1,12 @@
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QKeyEvent, Qt
 from PySide6.QtWidgets import QWidget, QMainWindow, QVBoxLayout
 from RobotGui.gui.camera_display import CameraDisplay
-from RobotGui.gui.coordinates_display import CoordinatesDisplay
+from threading import Thread
 
-from RobotGui.core.comm.client import setup
+from RobotGui.gui.coordinates_display import CoordinatesDisplay
+from RobotGui.core.comm.pub.movment import MovementPublish
+
+from RobotGui.core.comm.client import Mqtt
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -11,11 +14,17 @@ class Window(QMainWindow):
 
         self.setCentralWidget(CentralWidget()) # where to show the captured images
 
-        self.show() # window containing the camera display appear
+        mqtt_instance = self.centralWidget()._mqtt # type: ignore
+        self._movement_publisher = MovementPublish(mqtt_instance)
 
+        self.show() # window containing the camera display appear
+    
+
+    key = None
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        
-        return super().keyPressEvent(event)
+        self._movement_publisher.handle_key_event(event)
+        super().keyPressEvent(event)
+
 
 class CentralWidget(QWidget):
     def __init__(self, parent :QWidget|None = None):
@@ -26,5 +35,6 @@ class CentralWidget(QWidget):
         self._layout.addWidget(self._camera_widget)
 
         self._coordinates_widget = CoordinatesDisplay()
-        setup(self._coordinates_widget.update_coordinates)
+        self._mqtt = Mqtt()
+        self._mqtt.setup(self._coordinates_widget.update_coordinates)
         self._layout.addWidget(self._coordinates_widget)

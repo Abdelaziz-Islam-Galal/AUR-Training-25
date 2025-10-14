@@ -2,23 +2,46 @@ from paho.mqtt.client import Client as MC
 from paho.mqtt.enums import CallbackAPIVersion
 from time import sleep
 from random import random
+import paho.mqtt.subscribe as subscribe
 
 _mqttc = MC(CallbackAPIVersion.VERSION2)
+x = 0
+y = 0
+
+slot = None
+def callback(client, userinfo, message):
+    global x, y
+    payload_str: str = message.payload.decode()
+    coords = payload_str.split(',')
+    x = float(coords[0])
+    y = float(coords[1])
+    print(f"Updated coordinates: x={x}, y={y}")
+    slot(x, y) # type: ignore
+
+def update_coordinates(x: float, y: float):
+        print(f'Robot is at: {x}, {y}')
+
+def setup(coords_slot, address = 'localhost', port = 1883):
+    global slot
+    slot = coords_slot
+    _mqttc.on_connect = _on_connect
+    _mqttc.on_message = callback
+    _mqttc.connect(address, port)
+    _mqttc.loop_start()
 
 
 def _on_connect(client, userdata, flags, reason_code, properties):
     if reason_code.is_failure:
         print('Failed to connect. Retrying..')
+    else:
+        _mqttc.subscribe('robot/movement')
 
-def setup(address = 'localhost', port = 1883):
-    _mqttc.on_connect = _on_connect
-    _mqttc.connect(address, port)
-    _mqttc.loop_start()
 
-setup()
+setup(update_coordinates)
+
+print("Robot started; waiting for movement commads in  via topic: robot/movement")
 
 while True:
     sleep(1)
-    x = random()
-    y = random()
     _mqttc.publish('robot/coordinates', f'{x},{y}')
+    print(f"Published coordinates: {x},{y}")
